@@ -50,7 +50,7 @@ function App() {
   };
 
   const onCrossClick = (id: string) => {
-    const newNote = note.filter((note) => note.id != id);
+    const newNote = note.filter((note) => note.id !== id);
     setNote(newNote);
   };
 
@@ -96,6 +96,7 @@ function App() {
             .filter((note) => note.text.toLowerCase().includes(searchState))
             .map((note) => (
               <Card
+                key={note.id}
                 id={note.id}
                 date={note.date}
                 text={note.text}

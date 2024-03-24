@@ -29,7 +29,7 @@ const AddNote: React.FC<noteProps> = ({ onAddNote }) => {
         value={noteText}
       ></textarea>
       <div className="flex justify-between ml-2 mr-2 focus:outline-none">
-        <div>{charLimit - noteText.length}word remaining</div>
+        <div>{charLimit - noteText.length} words remaining</div>
         <button className="border rounded-xl w-12" onClick={onSaveClick}>
           Save
         </button>
