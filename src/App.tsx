@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
-import Card from "./components/card";
 import { nanoid } from "nanoid";
-import AddNote from "./components/addNote";
+import Header from "./components/header";
+import Search from "./components/search";
+import NotesList from "./components/notesList";
+
+interface Note {
+  id: string;
+  text: string;
+  date: string;
+}
 
 function App() {
-  const [searchState, setSearchState] = useState("");
-  const [darkmode, setDarkMode] = useState(false);
-
-  const [note, setNote] = useState([
+  const [note, setNote] = useState<Note[]>([
     {
       id: nanoid(),
       text: "Hello this is my first Note!!",
@@ -15,24 +19,15 @@ function App() {
     },
     { id: nanoid(), text: "yooooo!!", date: "13/03/24" },
   ]);
-
-  const [currentDate, setCurrentDate] = useState<string>("");
+  const [searchState, setSearchState] = useState<string>("");
+  const [darkmode, setDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log("Retrieving notes from local storage...");
     const savedNotesString = localStorage.getItem("react-notes-app-data");
-
-    if (savedNotesString) {
+    if (savedNotesString !== null) {
       const savedNotes = JSON.parse(savedNotesString);
-      console.log("Retrieved notes:", savedNotes);
       setNote(savedNotes);
     }
-  }, []);
-
-  useEffect(() => {
-    const date = new Date();
-    const formattedDate = date.toLocaleDateString();
-    setCurrentDate(formattedDate);
   }, []);
 
   useEffect(() => {
@@ -40,16 +35,17 @@ function App() {
   }, [note]);
 
   const onAddNote = (text: string) => {
+    const date = new Date();
     const newNote = {
       id: nanoid(),
       text: text,
-      date: currentDate,
+      date: date.toLocaleDateString(),
     };
 
     setNote([...note, newNote]);
   };
 
-  const onCrossClick = (id: string) => {
+  const delNote = (id: string) => {
     const newNote = note.filter((note) => note.id !== id);
     setNote(newNote);
   };
@@ -64,47 +60,17 @@ function App() {
 
   return (
     <div className={`${darkmode ? "bg-black" : "bg-white"}`}>
-      <nav className="h-32 w-935 p-5 mb-8 mr-auto ml-auto">
-        <div className="flex justify-between">
-          <h1
-            className={`text-5xl ${
-              darkmode ? " text-white bg-black" : "text-black bg-white"
-            }`}
-          >
-            Notes
-          </h1>
-          <button
-            className={`border rounded-lg h-7 mt-5 ${
-              darkmode ? "text-white" : "text-black"
-            }`}
-            onClick={handleMode}
-          >
-            Day'n'Nite
-          </button>
-        </div>
-        <div className="mt-8 h-7">
-          <input
-            className="border rounded-2xl w-full p-1 pl-4"
-            placeholder="Search..."
-            onChange={handleSearch}
-          />
-        </div>
-      </nav>
+      <Header darkmode={darkmode} handleMode={handleMode} />
+      <Search handleSearch={handleSearch} />
       <div className="w-935 p-5 mr-auto ml-auto">
-        <div className="grid grid-cols-auto gap-4">
-          {note
-            .filter((note) => note.text.toLowerCase().includes(searchState))
-            .map((note) => (
-              <Card
-                key={note.id}
-                id={note.id}
-                date={note.date}
-                text={note.text}
-                onCrossClick={() => onCrossClick(note.id)}
-              />
-            ))}
-          <AddNote onAddNote={onAddNote} />
-        </div>
+        <NotesList
+          note={note.filter((note) =>
+            note.text.toLowerCase().includes(searchState.toLowerCase())
+          )}
+          onAddNote={onAddNote}
+          delNote={delNote}
+          searchState={""}
+        />
       </div>
     </div>
   );
